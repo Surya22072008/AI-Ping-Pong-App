@@ -12,7 +12,7 @@ var paddle1Y;
 var  playerscore =0;
 
 var pcscore =0;
-//ball x and y and speedx speed y and radius
+
 var ball = {
     x:350/2,
     y:480/2,
@@ -25,9 +25,14 @@ rightWristY = 0;
 rightWristX = 0;
 scoreRightWrist = 0;
 
-//Define a variable to hold the status of the game
-gameStatus="";
- 
+game_status = "";
+
+
+
+ function preload() {
+  ball_touch_paddel = loadSound("ball_touch_paddel.wav");
+  missed = loadSound("missed.wav");
+}
 
 function setup(){
 var canvas =  createCanvas(700,600);
@@ -59,14 +64,12 @@ function gotPoses(results)
 
 function startGame()
 {
-   gameStatus="Start";
-   document.getElementById("status").innerHTML = "The Game Is Loading";//Set the value of the status variable created in step 1 to “start”.
- //Update the h3 tag which we have created inside index.html file in project 138 who has id “status” to "Game Is Loaded”.
+  game_status = "start";
+  document.getElementById("status").innerHTML = "Game Is Loading";
 }
 
 function draw(){
-if(gameStatus=="Start") // inside the if condition check if the game_status is equal to the value "start".
-{
+
   background(0); 
   image(video, 0, 0, 700, 600);
 
@@ -85,11 +88,13 @@ if(gameStatus=="Start") // inside the if condition check if the game_status is e
     circle(rightWristX, rightWristY, 30);
   }
 
-
-    //funtion paddleInCanvas call 
+  if(game_status == "start")
+  {
+    document.getElementById("status").innerHTML = "Game Is Loaded";
+    
     paddleInCanvas();
         
-    //left paddle
+  
     fill(250,0,0);
     stroke(0,0,250);
     strokeWeight(0.5);
@@ -97,21 +102,20 @@ if(gameStatus=="Start") // inside the if condition check if the game_status is e
     rect(paddle1X,paddle1Y,paddle1,paddle1Height,100);
 
 
-    //pc computer paddle
+  
     fill("#FFA500");
     stroke("#FFA500");
     var paddle2y =ball.y-paddle2Height/2;  rect(paddle2Y,paddle2y,paddle2,paddle2Height,100);
     
-    //function midline call
     midline();
     
-    //funtion drawScore call 
+     
     drawScore();
 
-    //function models call  
+  
     models();
 
-    //function move call which in very important
+    
     move();
 
     }
@@ -120,7 +124,7 @@ if(gameStatus=="Start") // inside the if condition check if the game_status is e
 
 
 
-//function reset when ball does notcame in the contact of padde
+
 function reset(){
    ball.x = width/2+100,
    ball.y = height/2+100;
@@ -129,7 +133,6 @@ function reset(){
 }
 
 
-//function midline draw a line in center
 function midline(){
     for(i=0;i<480;i+=10) {
     var y = 0;
@@ -140,7 +143,6 @@ function midline(){
 }
 
 
-//function drawScore show scores
 function drawScore(){
     textAlign(CENTER);
     textSize(20);
@@ -153,7 +155,6 @@ function drawScore(){
 }
 
 
-//very important function of this game
 function move(){
    fill(50,350,0);
    stroke(255,0,0);
@@ -167,11 +168,11 @@ function move(){
   if (ball.x-2.5*ball.r/2< 0){
   if (ball.y >= paddle1Y&& ball.y <= paddle1Y + paddle1Height) {
     ball.dx = -ball.dx+0.5; 
-    
+    ball_touch_paddel.play();
   }
   else{
     pcscore++;
-    
+    missed.play();
     reset();
     navigator.vibrate(100);
   }
@@ -184,17 +185,17 @@ if(pcscore ==4){
     stroke("white");
     textSize(25);
     text("Game Over!",width/2,height/2);
-    text("Reload the page!",width/2,height/2+30)
+    text("Press Restart button to play again!",width/2,height/2+30)
     noLoop();
     pcscore = 0;
- }
+}
    if(ball.y+ball.r > height || ball.y-ball.r <0){
        ball.dy =- ball.dy;
    }   
 }
 
 
-//width height of canvas speed of ball 
+
 function models(){
     textSize(18);
     fill(255);
@@ -205,15 +206,19 @@ function models(){
 }
 
 
-//this function help to not go te paddle out of canvas
 function paddleInCanvas(){
-  if(paddle1Y+paddle1Height > height){
-    paddle1Y=height-paddle1Height;
+  if(mouseY+paddle1Height > height){
+    mouseY=height-paddle1Height;
   }
-  if(paddle1Y < 0){
-    paddle1Y =0;
+  if(mouseY < 0){
+    mouseY =0;
   }
  
   
 }
 
+function restart()
+{
+  pcscore = 0;
+  loop();
+}
